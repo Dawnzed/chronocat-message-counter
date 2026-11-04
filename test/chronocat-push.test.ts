@@ -1,0 +1,8 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {pushLeaderboardMessage as sendTyped} from '../src/push';
+const send = sendTyped as any;
+function fixture(){const calls=[];const bot={platform:'chronocat',selfId:'bot',online:true,async sendMessage(...args){calls.push(args);return ['message']}};return {calls,ctx:{bots:[bot],database:{async get(){return [{assignee:'bot',flag:0}]}},async broadcast(){throw Error('unsafe broadcast')}}};}
+test('Chronocat text and image omit referrer, preserve content and assigned bot',async()=>{for(const content of ['prompt','<img src="data:image/png;base64,AAAA"/>']){const{ctx,calls}=fixture();ctx.bots.unshift({platform:'chronocat',selfId:'other',online:true});assert.deepEqual(await send(ctx,'chronocat:group',content),['message']);assert.deepEqual(calls,[['group',content]]);}});
+test('rejections and empty results propagate instead of reporting success',async()=>{for(const fn of [async()=>{throw Error('400')},async()=>[]]){const{ctx}=fixture();ctx.bots[0].sendMessage=fn;await assert.rejects(send(ctx,'chronocat:group','image'));}});
+test('silent channel and offline assignee cannot send',async()=>{for(const mode of ['silent','offline']){const{ctx,calls}=fixture();if(mode==='silent')ctx.database.get=async()=>[{assignee:'bot',flag:4}];else ctx.bots[0].online=false;await assert.rejects(send(ctx,'chronocat:group','x'));assert.equal(calls.length,0);}});
+test('other platforms keep broadcast; empty result is failure',async()=>{const{ctx}=fixture();ctx.broadcast=async()=>['ok'];assert.deepEqual(await send(ctx,'qq:group','x'),['ok']);ctx.broadcast=async()=>[];await assert.rejects(send(ctx,'qq:group','x'));});

@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-message-counter",
   "description": "Koishi 插件：统计群内发言次数，生成用户与频道排行榜及柱状图。",
-  "version": "4.13.0",
+  "version": "4.13.0-chronocat.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -30,10 +30,10 @@
     "Nawyjx <3373167460@qq.com>",
     "shangxueink <1919892171@qq.com>"
   ],
-  "homepage": "https://www.npmjs.com/package/koishi-plugin-message-counter?activeTab=readme",
+  "homepage": "https://github.com/Dawnzed/chronocat-message-counter/tree/chronocat-4.13",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/araea/koishi-plugin-message-counter.git"
+    "url": "git+https://github.com/Dawnzed/chronocat-message-counter.git"
   },
   "keywords": [
     "chatbot",
@@ -55,10 +55,13 @@
   "devDependencies": {
     "koishi-plugin-cron": "^3.1.0",
     "koishi-plugin-puppeteer": "^3.9.0",
-    "tsx": "^4.23.15"
+    "tsx": "^4.23.15",
+    "esbuild": "0.28.2",
+    "typescript": "5.8.2"
   },
   "scripts": {
     "check:design": "node scripts/check-design-system.mjs",
-    "test": "tsx --test test/*.test.ts"
+    "test": "tsx --test test/*.test.ts",
+    "build": "tsc --project tsconfig.json --incremental false --composite false && esbuild src/index.ts --bundle --platform=node --format=cjs --packages=external --minify-whitespace --outfile=lib/index.js"
   }
 }

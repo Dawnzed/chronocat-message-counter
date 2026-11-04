@@ -1,3 +1,4 @@
+import { pushLeaderboardMessage } from "./push";
 import { clientColorScript, LEGACY_CHART_SIZE } from './m3'
 import { createClearAction } from './clear'
 import { helpOf } from './help'
@@ -2017,8 +2018,8 @@ export async function apply(ctx: Context, config: Config) {
         if (config.isGeneratingRankingListPromptVisible) {
           // 忽略发送提示消息的错误（例如禁言导致），不中断后续发送图片
           try {
-            await ctx.broadcast(
-              [prefixedChannelId],
+            await pushLeaderboardMessage(ctx,
+              prefixedChannelId,
               `⏳ 正在生成本频道的${periodName}发言排行榜……`,
             );
           } catch (e) {}
@@ -2033,7 +2034,7 @@ export async function apply(ctx: Context, config: Config) {
           rankingData,
           totalCount,
         });
-        await ctx.broadcast([prefixedChannelId], renderedMessage);
+        await pushLeaderboardMessage(ctx, prefixedChannelId, renderedMessage);
 
         pushedCount++;
         logger.debug(
